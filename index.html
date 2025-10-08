@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Scrum: Pon a prueba tus conocimientos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            transition: background-color 0.3s;
+        }
+        
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .question-card {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            background-color: var(--light-color);
+            transition: all 0.3s;
+        }
+        
+        .option {
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .option:hover {
+            background-color: #e3f2fd;
+            border-color: var(--primary-color);
+        }
+        
+        .option.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .option.correct {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .option.incorrect {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-custom {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-custom:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .progress-container {
+            margin: 2rem 0;
+        }
+        
+        .progress-bar {
+            background-color: var(--primary-color);
+        }
+        
+        .result-container {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 15px;
+            background-color: var(--light-color);
+        }
+        
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .feedback {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .scrum-master {
+            max-width: 150px;
+            margin: 0 auto 1rem;
+        }
+        
+        .celebrate {
+            animation: celebrate 0.5s ease-in-out;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="quiz-container">
+            <!-- Pantalla de inicio -->
+            <div id="start-screen">
+                <div class="header">
+                    <h1 class="display-4 fw-bold text-primary">Quiz Scrum</h1>
+                    <p class="lead">Pon a prueba tus conocimientos sobre el marco de trabajo ágil</p>
+                    <div class="scrum-master">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="50" cy="35" r="15" fill="#3498db"/>
+                            <rect x="35" y="50" width="30" height="40" rx="5" fill="#3498db"/>
+                            <circle cx="40" cy="30" r="3" fill="white"/>
+                            <circle cx="60" cy="30" r="3" fill="white"/>
+                            <path d="M45 40 Q50 45 55 40" stroke="white" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p>Este quiz contiene 15 preguntas sobre Scrum. Deberás responder 10 preguntas seleccionadas aleatoriamente.</p>
+                    <p>¡Demuestra cuánto sabes sobre roles, eventos y artefactos de Scrum!</p>
+                    <button id="start-btn" class="btn btn-custom mt-3">Comenzar Quiz</button>
+                </div>
+            </div>
+            
+            <!-- Pantalla del quiz -->
+            <div id="quiz-screen" class="hidden">
+                <div class="header">
+                    <h2>Pregunta <span id="question-number">1</span> de <span id="total-questions">10</span></h2>
+                    <div class="progress-container">
+                        <div class="progress" style="height: 10px;">
+                            <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" 
+                                aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="question-container">
+                    <div class="question-card">
+                        <h4 id="question-text">¿Cuál es el rol principal del Product Owner en Scrum?</h4>
+                    </div>
+                    
+                    <div id="options-container">
+                        <!-- Las opciones se generarán dinámicamente con JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button id="next-btn" class="btn btn-custom">Siguiente Pregunta</button>
+                </div>
+            </div>
+            
+            <!-- Pantalla de resultados -->
+            <div id="results-screen" class="hidden">
+                <div class="result-container">
+                    <h2 class="mb-4">¡Quiz Completado!</h2>
+                    <div class="score-display">
+                        <span id="score">0</span>/<span id="total">10</span>
+                    </div>
+                    <p class="feedback" id="feedback-message">¡Excelente trabajo! Eres un experto en Scrum.</p>
+                    <div class="mt-4">
+                        <button id="restart-btn" class="btn btn-custom">Volver a Jugar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de preguntas
+        const questions = [
+            {
+                question: "¿Qué es Scrum?",
+                options: [
+                    "Una metodología rígida para gestionar proyectos",
+                    "Un marco de trabajo ágil para gestionar trabajo complejo",
+                    "Un software para gestionar equipos",
+                    "Un tipo de reunión diaria"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Cuál es la duración típica de un Sprint?",
+                options: [
+                    "1 día",
+                    "1 mes o menos",
+                    "3 meses",
+                    "6 meses"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Quién es responsable de gestionar el Product Backlog?",
+                options: [
+                    "El Scrum Master",
+                    "El equipo de desarrollo",
+                    "El Product Owner",
+                    "El CEO de la empresa"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Cuál es el propósito principal del Daily Scrum?",
+                options: [
+                    "Planificar el Sprint completo",
+                    "Revisar el trabajo terminado",
+                    "Sincronizar actividades y planificar las próximas 24 horas",
+                    "Resolver problemas técnicos complejos"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué rol actúa como facilitador y removedor de impedimentos?",
+                options: [
+                    "Product Owner",
+                    "Scrum Master",
+                    "Equipo de Desarrollo",
+                    "Stakeholder"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué evento de Scrum se realiza al final del Sprint para mostrar el incremento?",
+                options: [
+                    "Sprint Planning",
+                    "Daily Scrum",
+                    "Sprint Review",
+                    "Sprint Retrospective"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué artefacto contiene todos los elementos que podrían necesitarse en el producto?",
+                options: [
+                    "Sprint Backlog",
+                    "Product Backlog",
+                    "Incremento",
+                    "Tablero de tareas"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué significa que el equipo de desarrollo es 'auto-organizado'?",
+                options: [
+                    "No necesita un Scrum Master",
+                    "Decide cómo hacer el trabajo por sí mismo",
+                    "Puede cambiar el Product Backlog",
+                    "Trabaja sin supervisión del Product Owner"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué evento de Scrum se enfoca en mejorar el proceso de trabajo?",
+                options: [
+                    "Sprint Planning",
+                    "Daily Scrum",
+                    "Sprint Review",
+                    "Sprint Retrospective"
+                ],
+                correct: 3
+            },
+            {
+                question: "¿Qué es un 'Incremento' en Scrum?",
+                options: [
+                    "El aumento de salario del equipo",
+                    "La suma de todos los elementos completados durante el Sprint",
+                    "El tiempo adicional añadido al Sprint",
+                    "Una nueva funcionalidad compleja"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Quién define el 'QUÉ' se debe construir en Scrum?",
+                options: [
+                    "Scrum Master",
+                    "Product Owner",
+                    "Equipo de Desarrollo",
+                    "Stakeholders"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Cuál de estos NO es uno de los tres pilares de Scrum?",
+                options: [
+                    "Transparencia",
+                    "Inspección",
+                    "Documentación",
+                    "Adaptación"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué artefacto contiene el plan para entregar los elementos seleccionados en el Sprint?",
+                options: [
+                    "Product Backlog",
+                    "Sprint Backlog",
+                    "Incremento",
+                    "Tablero Kanban"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Cuál es la duración máxima de un Daily Scrum?",
+                options: [
+                    "30 minutos",
+                    "1 hora",
+                    "15 minutos",
+                    "No tiene límite de tiempo"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué rol decide el 'CUÁNTO' trabajo puede comprometerse en un Sprint?",
+                options: [
+                    "Product Owner",
+                    "Scrum Master",
+                    "Equipo de Desarrollo",
+                    "Project Manager"
+                ],
+                correct: 2
+            }
+        ];
+
+        // Variables del juego
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedQuestions = [];
+        let userAnswers = [];
+        const totalQuestionsToShow = 10;
+
+        // Elementos DOM
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const startBtn = document.getElementById('start-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const questionNumber = document.getElementById('question-number');
+        const totalQuestions = document.getElementById('total-questions');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreDisplay = document.getElementById('score');
+        const totalDisplay = document.getElementById('total');
+        const feedbackMessage = document.getElementById('feedback-message');
+
+        // Inicializar el quiz
+        function initQuiz() {
+            // Seleccionar preguntas aleatorias
+            selectedQuestions = getRandomQuestions(questions, totalQuestionsToShow);
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            
+            // Actualizar interfaz
+            totalQuestions.textContent = totalQuestionsToShow;
+            totalDisplay.textContent = totalQuestionsToShow;
+            
+            // Mostrar primera pregunta
+            showQuestion();
+            
+            // Cambiar pantallas
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            resultsScreen.classList.add('hidden');
+        }
+
+        // Obtener preguntas aleatorias
+        function getRandomQuestions(questionsArray, count) {
+            const shuffled = [...questionsArray].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // Mostrar pregunta actual
+        function showQuestion() {
+            const question = selectedQuestions[currentQuestionIndex];
+            
+            // Actualizar número de pregunta y barra de progreso
+            questionNumber.textContent = currentQuestionIndex + 1;
+            progressBar.style.width = `${((currentQuestionIndex) / totalQuestionsToShow) * 100}%`;
+            
+            // Mostrar texto de la pregunta
+            questionText.textContent = question.question;
+            
+            // Limpiar opciones anteriores
+            optionsContainer.innerHTML = '';
+            
+            // Crear opciones
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                optionElement.dataset.index = index;
+                
+                // Verificar si ya se seleccionó esta opción
+                if (userAnswers[currentQuestionIndex] === index) {
+                    optionElement.classList.add('selected');
+                }
+                
+                optionElement.addEventListener('click', selectOption);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Actualizar estado del botón "Siguiente"
+            nextBtn.disabled = userAnswers[currentQuestionIndex] === undefined;
+        }
+
+        // Seleccionar una opción
+        function selectOption(e) {
+            // Quitar selección anterior
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            
+            // Marcar opción seleccionada
+            e.target.classList.add('selected');
+            
+            // Guardar respuesta
+            userAnswers[currentQuestionIndex] = parseInt(e.target.dataset.index);
+            
+            // Habilitar botón "Siguiente"
+            nextBtn.disabled = false;
+        }
+
+        // Mostrar siguiente pregunta o resultados
+        function nextQuestion() {
+            // Verificar respuesta
+            const currentQuestion = selectedQuestions[currentQuestionIndex];
+            const userAnswer = userAnswers[currentQuestionIndex];
+            
+            if (userAnswer === currentQuestion.correct) {
+                score++;
+            }
+            
+            // Avanzar a la siguiente pregunta o mostrar resultados
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < totalQuestionsToShow) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Mostrar resultados
+        function showResults() {
+            // Actualizar puntuación
+            scoreDisplay.textContent = score;
+            totalDisplay.textContent = totalQuestionsToShow;
+            
+            // Mostrar mensaje según puntuación
+            const percentage = (score / totalQuestionsToShow) * 100;
+            
+            if (percentage >= 90) {
+                feedbackMessage.textContent = "¡Excelente! Eres un experto en Scrum. 🎉";
+                feedbackMessage.style.color = "var(--secondary-color)";
+            } else if (percentage >= 70) {
+                feedbackMessage.textContent = "¡Muy bien! Tienes un buen conocimiento de Scrum. 👍";
+                feedbackMessage.style.color = "var(--primary-color)";
+            } else if (percentage >= 50) {
+                feedbackMessage.textContent = "No está mal, pero hay conceptos que puedes reforzar. 💪";
+                feedbackMessage.style.color = "orange";
+            } else {
+                feedbackMessage.textContent = "Puedes mejorar repasando los conceptos básicos de Scrum. 📚";
+                feedbackMessage.style.color = "var(--accent-color)";
+            }
+            
+            // Añadir animación de celebración
+            scoreDisplay.classList.add('celebrate');
+            
+            // Cambiar pantallas
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            // Quitar animación después de un tiempo
+            setTimeout(() => {
+                scoreDisplay.classList.remove('celebrate');
+            }, 500);
+        }
+
+        // Reiniciar quiz
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', initQuiz);
+        nextBtn.addEventListener('click', nextQuestion);
+        restartBtn.addEventListener('click', restartQuiz);
+    </script>
+</body>
+</html>
